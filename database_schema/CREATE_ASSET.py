@@ -1,7 +1,6 @@
 # import required package
-import mysql.connector 
-from mysql.connector import errorcode
 from database_config import local_config
+from CREATE_TABLE import Create_Table
 
 DB_NAME = 'AllWeatherQuant'
 TABLES = {}
@@ -23,35 +22,4 @@ TABLES['assets'] = (
     "  PRIMARY KEY `my_unique_key` (`Symbol`, `Date`)"
     ") ENGINE=InnoDB")
 
-def create_database(cursor):
-    try:
-        cursor.execute(
-            "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME))
-    except mysql.connector.Error as err:
-        print("Failed creating database: {}".format(err))
-        exit(1)
-
-# connect to database(DB_NAME)
-cnx = mysql.connector.connect(**local_config)
-cursor = cnx.cursor()
-try:
-    cursor.database = DB_NAME
-except mysql.connector.Error as err:
-    print(err)
-    exit(1)
-
-# create table with schema
-for name, ddl in TABLES.items():
-    try:
-        print("Creating table {}: ".format(name), end='')
-        cursor.execute(ddl)
-    except mysql.connector.Error as err:
-        if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-            print("already exists.")
-        else:
-            print(err.msg)
-    else:
-        print("OK")
-
-cursor.close()
-cnx.close()
+Create_Table('AllWeatherQuant', local_config, TABLES)
